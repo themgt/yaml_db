@@ -158,7 +158,11 @@ module SerializationHelper
     end
 
     def self.tables
-      ActiveRecord::Base.connection.tables.reject { |table| ['schema_info', 'schema_migrations'].include?(table) }
+      if ENV['YAML_DB_TABLES']
+        ActiveRecord::Base.connection.tables.select { |table| ENV['YAML_DB_TABLES'].split(',').map(&:strip).include?(table) }
+      else
+        ActiveRecord::Base.connection.tables.reject { |table| ['schema_info', 'schema_migrations'].include?(table) }
+      end
     end
 
     def self.dump_table(io, table)
